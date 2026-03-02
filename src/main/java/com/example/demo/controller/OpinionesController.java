@@ -1,0 +1,34 @@
+package com.example.opiniones.controller;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
+@RestController
+public class OpinionesController {
+
+    private final RestTemplate restTemplate;
+
+    public OpinionesController(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    @GetMapping("/productos")
+    public Object obtenerProductos() {
+        return restTemplate.getForObject(
+                "http://micro-productos-service/api/productos",
+                Object.class
+        );
+    }
+
+    @PostMapping("/opinion")
+    public String recibirOpinion(@RequestBody String opinion) {
+        System.out.println("Opinión recibida: " + opinion);
+        return "Opinión recibida correctamente";
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}

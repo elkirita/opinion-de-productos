@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sección de Opiniones</title>
+</head>
+<body>
+
+<h2>Sección de Opiniones</h2>
+
+<label>Producto:</label>
+<select id="productos"></select>
+
+<br><br>
+
+<label>Tu opinión:</label><br>
+<textarea id="opinion" rows="4" cols="40"></textarea>
+
+<br><br>
+<button onclick="enviarOpinion()">Enviar</button>
+
+<script>
+  async function cargarProductos() {
+      const res = await fetch("/productos");
+      const data = await res.json();
+      const select = document.getElementById("productos");
+
+      data.forEach(prod => {
+          const option = document.createElement("option");
+          option.value = prod.id;
+          option.text = prod.nombre;
+          select.appendChild(option);
+      });
+  }
+
+  async function enviarOpinion() {
+      const opinion = document.getElementById("opinion").value;
+
+      await fetch("/opinion", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(opinion)
+      });
+
+      alert("Opinión enviada (temporal)");
+  }
+
+  cargarProductos();
+</script>
+
+</body>
+</html>

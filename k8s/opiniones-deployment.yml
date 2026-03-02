@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: micro-opiniones
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: micro-opiniones
+  template:
+    metadata:
+      labels:
+        app: micro-opiniones
+    spec:
+      containers:
+        - name: micro-opiniones
+          image: jhaucatoma/micro-opiniones:latest
+          ports:
+            - containerPort: 8080
