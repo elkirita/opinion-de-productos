@@ -9,3 +9,4 @@ spec:
   ports:
     - port: 80
       targetPort: 8080
+      nodePort: 30899   # debe estar entre 30000-32767
