@@ -1,4 +1,4 @@
-package com.example.opiniones.controller;
+package com.example.demo.controller;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,7 @@ public class OpinionesController {
         this.restTemplate = restTemplate;
     }
 
-    @GetMapping("/productos")
+    @GetMapping("/api/productos")
     public Object obtenerProductos() {
         return restTemplate.getForObject(
                 "http://micro-productos-service/api/productos",
