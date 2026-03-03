@@ -1,22 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+  <meta charset="UTF-8">
   <title>Sección de Opiniones</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4e73df, #1cc88a);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      width: 400px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
+    select, textarea {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: none;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #4e73df;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #2e59d9;
+    }
+  </style>
 </head>
 <body>
 
-<h2>Sección de Opiniones</h2>
+<div class="card">
+  <h2>Sección de Opiniones</h2>
 
-<label>Producto:</label>
-<select id="productos"></select>
+  <label>Producto:</label>
+  <select id="productos"></select>
 
-<br><br>
+  <label>Tu opinión:</label>
+  <textarea id="opinion" rows="4"></textarea>
 
-<label>Tu opinión:</label><br>
-<textarea id="opinion" rows="4" cols="40"></textarea>
-
-<br><br>
-<button onclick="enviarOpinion()">Enviar</button>
+  <button onclick="enviarOpinion()">Enviar Opinión</button>
+</div>
 
 <script>
   async function cargarProductos() {
@@ -26,7 +88,7 @@
 
       data.forEach(prod => {
           const option = document.createElement("option");
-          option.value = prod.id;
+          option.value = prod.id_producto;
           option.text = prod.nombre;
           select.appendChild(option);
       });
@@ -41,7 +103,7 @@
           body: JSON.stringify(opinion)
       });
 
-      alert("Opinión enviada (temporal)");
+      alert("Opinión enviada correctamente");
   }
 
   cargarProductos();
