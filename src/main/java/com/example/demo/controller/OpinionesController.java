@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,10 +24,5 @@ public class OpinionesController {
     public String recibirOpinion(@RequestBody String opinion) {
         System.out.println("Opinión recibida: " + opinion);
         return "Opinión recibida correctamente";
-    }
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
     }
 }
