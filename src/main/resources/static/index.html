@@ -22,7 +22,7 @@
     .container {
       background: white;
       width: 95%;
-      max-width: 900px;
+      max-width: 950px;
       padding: 30px;
       border-radius: 20px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
@@ -94,6 +94,71 @@
       background: #2a5298;
       color: white;
     }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 25px;
+      width: 400px;
+      border-radius: 15px;
+      animation: aparecer 0.25s ease;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: none;
+      margin-top: 10px;
+    }
+
+    .modal-buttons {
+      margin-top: 15px;
+      text-align: right;
+    }
+
+    .save {
+      background: #2a5298;
+      color: white;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .cancel {
+      background: #ccc;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .success {
+      color: green;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    @keyframes aparecer {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 
@@ -116,9 +181,26 @@
   <div class="pagination" id="paginacion"></div>
 </div>
 
+<!-- MODAL -->
+<div class="modal" id="modalOpinion">
+  <div class="modal-content">
+    <h3>Escribir Opinión</h3>
+    <p id="nombreProducto"></p>
+    <textarea id="textoOpinion" rows="4"></textarea>
+
+    <div class="modal-buttons">
+      <button class="cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="save" onclick="guardarOpinion()">Guardar</button>
+    </div>
+
+    <div class="success" id="mensajeExito"></div>
+  </div>
+</div>
+
 <script>
   let productos = [];
   let paginaActual = 1;
+  let productoSeleccionado = null;
   const productosPorPagina = 10;
 
   async function cargarProductos() {
@@ -142,7 +224,7 @@
         <td>${prod.id_producto}</td>
         <td>${prod.nombre}</td>
         <td>
-          <button class="edit-btn">
+          <button class="edit-btn" onclick="abrirModal(${prod.id_producto}, '${prod.nombre}')">
             <i class="fa-solid fa-pen"></i>
           </button>
         </td>
@@ -172,6 +254,33 @@
     if (paginaActual < totalPaginas) {
       contenedor.innerHTML += `<button onclick="mostrarPagina(${paginaActual + 1})">&gt;</button>`;
     }
+  }
+
+  function abrirModal(id, nombre) {
+    productoSeleccionado = id;
+    document.getElementById("nombreProducto").innerText = nombre;
+    document.getElementById("textoOpinion").value = "";
+    document.getElementById("mensajeExito").innerText = "";
+    document.getElementById("modalOpinion").style.display = "flex";
+  }
+
+  function cerrarModal() {
+    document.getElementById("modalOpinion").style.display = "none";
+  }
+
+  async function guardarOpinion() {
+    const opinion = document.getElementById("textoOpinion").value;
+
+    await fetch("/opinion", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id_producto: productoSeleccionado,
+        comentario: opinion
+      })
+    });
+
+    document.getElementById("mensajeExito").innerText = "Opinión enviada correctamente ✅";
   }
 
   cargarProductos();
