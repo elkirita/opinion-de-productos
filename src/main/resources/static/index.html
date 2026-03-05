@@ -2,108 +2,229 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Sección de Opiniones</title>
+  <title>Gestión de Opiniones</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #4e73df, #1cc88a);
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
     }
 
-    .card {
+    /* CONTENEDOR PRINCIPAL */
+    .container {
       background: white;
-      padding: 30px;
-      border-radius: 15px;
-      width: 400px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      width: 800px;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
     }
 
     h2 {
       text-align: center;
-      margin-bottom: 20px;
-      color: #333;
+      margin-bottom: 30px;
+      color: #1e3c72;
     }
 
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 15px;
-      margin-bottom: 5px;
-    }
-
-    select, textarea {
+    /* TABLA */
+    table {
       width: 100%;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px;
+      text-align: left;
+    }
+
+    th {
+      background: #f4f6f9;
+    }
+
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    tr:hover {
+      background: #eef3ff;
+    }
+
+    /* BOTÓN LÁPIZ */
+    .edit-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #2a5298;
+      transition: 0.2s;
+    }
+
+    .edit-btn:hover {
+      color: #1e3c72;
+      transform: scale(1.2);
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      width: 400px;
+      border-radius: 15px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
     }
 
     textarea {
-      resize: none;
-    }
-
-    button {
-      margin-top: 20px;
       width: 100%;
       padding: 10px;
-      border: none;
       border-radius: 8px;
-      background: #4e73df;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
+      border: 1px solid #ccc;
+      resize: none;
+      margin-top: 10px;
     }
 
-    button:hover {
-      background: #2e59d9;
+    .modal-buttons {
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    button.save {
+      background: #2a5298;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button.cancel {
+      background: #ccc;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .success {
+      color: green;
+      font-size: 14px;
+      margin-top: 10px;
     }
   </style>
 </head>
+
 <body>
 
-<div class="card">
-  <h2>Sección de Opiniones</h2>
+<div class="container">
+  <h2>Lista de Productos</h2>
 
-  <label>Producto:</label>
-  <select id="productos"></select>
+  <table>
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Producto</th>
+      <th>Acción</th>
+    </tr>
+    </thead>
+    <tbody id="tablaProductos"></tbody>
+  </table>
+</div>
 
-  <label>Tu opinión:</label>
-  <textarea id="opinion" rows="4"></textarea>
+<!-- MODAL -->
+<div class="modal" id="modalOpinion">
+  <div class="modal-content">
+    <h3>Escribir Opinión</h3>
+    <p id="productoNombre"></p>
+    <textarea id="textoOpinion" rows="4"></textarea>
 
-  <button onclick="enviarOpinion()">Enviar Opinión</button>
+    <div class="modal-buttons">
+      <button class="cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="save" onclick="guardarOpinion()">Guardar</button>
+    </div>
+
+    <div class="success" id="mensajeExito"></div>
+  </div>
 </div>
 
 <script>
-  async function cargarProductos() {
-      const res = await fetch("/api/productos");
-      const data = await res.json();
-      const select = document.getElementById("productos");
+  let productoSeleccionado = null;
 
-      data.forEach(prod => {
-          const option = document.createElement("option");
-          option.value = prod.id_producto;
-          option.text = prod.nombre;
-          select.appendChild(option);
-      });
+  /* Cargar productos */
+  async function cargarProductos() {
+    const res = await fetch("/api/productos");
+    const data = await res.json();
+    const tabla = document.getElementById("tablaProductos");
+
+    data.forEach(prod => {
+      const fila = document.createElement("tr");
+
+      fila.innerHTML = `
+        <td>${prod.id_producto}</td>
+        <td>${prod.nombre}</td>
+        <td>
+          <button class="edit-btn" onclick="abrirModal(${prod.id_producto}, '${prod.nombre}')">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+        </td>
+      `;
+
+      tabla.appendChild(fila);
+    });
   }
 
-  async function enviarOpinion() {
-      const opinion = document.getElementById("opinion").value;
+  /* Abrir modal */
+  function abrirModal(id, nombre) {
+    productoSeleccionado = id;
+    document.getElementById("productoNombre").innerText = nombre;
+    document.getElementById("textoOpinion").value = "";
+    document.getElementById("mensajeExito").innerText = "";
+    document.getElementById("modalOpinion").style.display = "flex";
+  }
 
-      await fetch("/opinion", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(opinion)
-      });
+  /* Cerrar modal */
+  function cerrarModal() {
+    document.getElementById("modalOpinion").style.display = "none";
+  }
 
-      alert("Opinión enviada correctamente");
+  /* Guardar opinión */
+  async function guardarOpinion() {
+    const opinion = document.getElementById("textoOpinion").value;
+
+    await fetch("/opinion", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id_producto: productoSeleccionado,
+        comentario: opinion
+      })
+    });
+
+    document.getElementById("mensajeExito").innerText = "Opinión enviada correctamente ✅";
   }
 
   cargarProductos();
